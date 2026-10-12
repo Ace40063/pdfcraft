@@ -2318,3 +2318,6 @@ animation effects	Off	Wyłączone
 	Local cross-PDF links require the desktop app	Lokalne łącza między plikami PDF wymagają aplikacji komputerowej
 	The existing action will be preserved.	Istniejąca akcja zostanie zachowana.
 	This form's scripts are turned off because one ran too long. Reopen the document to run them again.	Skrypty tego formularza są wyłączone, ponieważ jeden z nich działał zbyt długo. Otwórz dokument ponownie, aby znów je uruchomić.
+	Turn upside down (180°)	Obróć do góry nogami (180°)
+	4 x 6 in label (101.6 x 152.4 mm)	Etykieta 4 × 6 cali (101,6 × 152,4 mm)
+	Cuts each page to its printed area, turns it upright and fits it to the sheet without stretching. One label per sheet.	Przycina każdą stronę do zadrukowanego obszaru, obraca ją pionowo i dopasowuje do arkusza bez rozciągania. Jedna etykieta na arkusz.

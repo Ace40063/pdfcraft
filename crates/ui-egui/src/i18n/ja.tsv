@@ -2338,3 +2338,6 @@ animation effects	Off	オフ
 	The linked PDF opened, but its named destination was not applied.	リンク先の PDF を開きましたが、名前付き移動先は適用されませんでした。
 	The linked PDF opened, but its page destination was out of range.	リンク先の PDF を開きましたが、移動先のページが範囲外です。
 	Local cross-PDF links require the desktop app	PDF 間のローカルリンクにはデスクトップアプリが必要です
+	Turn upside down (180°)	上下反転 (180°)
+	4 x 6 in label (101.6 x 152.4 mm)	4 × 6 インチ ラベル (101.6 × 152.4 mm)
+	Cuts each page to its printed area, turns it upright and fits it to the sheet without stretching. One label per sheet.	各ページを印刷領域で切り抜き、正しい向きに回転して、伸縮させずに用紙に合わせます。1 枚に 1 ラベル。
