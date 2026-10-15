@@ -858,6 +858,46 @@ fn polygons_clouds_connected_lines_callouts_and_inserted_text() {
     assert_eq!(h.state().quick_tool, QuickTool::Select);
 }
 
+fn drawn_points(h: &Harness<'static, PdfCraftApp>) -> usize {
+    match &h.state().views[0].comments.gesture {
+        Some(pdfcraft_ui_egui::comments::Gesture::Draw { points, .. }) => points.len(),
+        _ => 0,
+    }
+}
+
+#[test]
+fn a_wrong_polygon_point_is_taken_back_with_backspace_or_undo() {
+    let mut h = harness(|app| app.set_option("quick", "polygon").unwrap());
+    for p in [(40.0, 40.0), (120.0, 40.0), (200.0, 150.0)] {
+        click_pt(&mut h, p);
+    }
+    assert_eq!(drawn_points(&h), 3);
+    // Backspace takes back the wrong click, then Undo takes back the one before it.
+    h.key_press(egui::Key::Backspace);
+    h.run_steps(2);
+    assert_eq!(drawn_points(&h), 2);
+    h.state_mut().undo();
+    h.run_steps(2);
+    assert_eq!(drawn_points(&h), 1);
+    // The right corner goes where the wrong one was, and the polygon finishes with all three.
+    click_pt(&mut h, (80.0, 110.0));
+    click_pt(&mut h, (120.0, 40.0));
+    assert_eq!(drawn_points(&h), 3);
+    h.key_press(egui::Key::Enter);
+    h.run_steps(3);
+    let c = comments(&h);
+    assert_eq!(c.len(), 1);
+    assert_eq!(c[0].subtype, "Polygon");
+    // Taking back the only point cancels the drawing without making a comment.
+    h.state_mut().set_option("quick", "polygon").unwrap();
+    click_pt(&mut h, (200.0, 200.0));
+    h.key_press(egui::Key::Backspace);
+    h.run_steps(2);
+    assert_eq!(drawn_points(&h), 0);
+    assert!(h.state().views[0].comments.gesture.is_none());
+    assert_eq!(comments(&h).len(), 1);
+}
+
 #[test]
 fn inserted_text_snaps_to_the_gap_between_characters_on_the_baseline() {
     let mut h = harness(|app| app.set_option("quick", "caret").unwrap());
@@ -1202,6 +1242,37 @@ fn hovering_a_comment_shows_its_author_and_text() {
     h.hover_at(p);
     h.run_steps(3);
     assert!(h.query_by_label_contains("Check this figure").is_none(), "a dialog covers the page hover");
+}
+
+#[test]
+fn preference_hides_author_only_highlight_hover_previews() {
+    // A highlight annotation with author Ada and empty contents over the first page.
+    let pdf = String::from_utf8_lossy(TEXT_FIXTURE).replace("/Contents 5 0 R /Resources", "/Contents 5 0 R /Annots [8 0 R] /Resources").replace(
+        "trailer",
+        "8 0 obj << /Type /Annot /Subtype /Highlight /Rect [50 50 150 120] /C [1 1 0] /T (Ada) /QuadPoints [50 120 150 120 50 50 150 50] >> endobj\ntrailer",
+    );
+    let mut h = Harness::builder().with_size(egui::vec2(1400.0, 900.0)).build_eframe(move |_cc| {
+        let mut app = PdfCraftApp::new();
+        app.set_option("language", "en").unwrap();
+        app.open_bytes("highlight_hover.pdf", None, pdf.into_bytes()).expect("opens");
+        app.set_option("left", "closed").unwrap();
+        app.set_option("panel", "none").unwrap();
+        app
+    });
+    h.run_steps(4);
+    settle(&mut h);
+
+    let p = at(&h, 100.0, 85.0);
+    // By default, author-only hover is shown.
+    h.hover_at(p);
+    h.run_steps(3);
+    h.get_by_label("Ada");
+
+    // Enabling preference hides author-only highlight hover.
+    h.state_mut().set_option("hide-empty-highlight-hover", "true").unwrap();
+    h.hover_at(p);
+    h.run_steps(3);
+    assert!(h.query_by_label("Ada").is_none(), "author-only hover must be suppressed");
 }
 
 #[test]
